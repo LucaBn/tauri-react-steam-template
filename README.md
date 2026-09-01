@@ -12,7 +12,7 @@ This template comes pre-configured with essential Steamworks features including 
 - **React 18 + TypeScript (SWC)**: Type-safe component UI development using Vite with `@vitejs/plugin-react-swc` for ultra-fast compilation.
 - **Steamworks Integration**: Ready-to-use hooks and commands for Steam Achievements, Leaderboards, and Cloud Save.
 - **Built-in Sass/SCSS Support**: Pre-configured styling support for `.scss` and `.sass` files.
-- **License Compliance Tooling**: Integrated `license-checker` script to generate third-party license reports for Steam releases.
+- **License Compliance Tooling**: Integrated `license-checker` script to generate third-party licenses file.
 - **Tauri Plugins Pre-installed**:
   - `@tauri-apps/plugin-fs` (Local file system operations)
   - `@tauri-apps/plugin-process` (Process control and application restart)
@@ -73,8 +73,7 @@ This launches both the Vite local development server and the Tauri application w
 - `npm run build`: Compiles TypeScript and builds production web assets.
 - `npm run tauri:dev`: Starts Tauri in development mode with HMR.
 - `npm run tauri:build`: Bundles the full game binary for release.
-- `npm run check-licenses`: Displays a summary of all third-party package licenses.
-- `npm run export-licenses`: Exports third-party package licenses to a CSV file for Steam compliance.
+- `npm run licenses`: Generate a file with a list of all third-party package licenses.
 
 ---
 
@@ -161,20 +160,6 @@ To install Bootstrap:
    ```typescript
    import "bootstrap/dist/css/bootstrap.min.css";
    ```
-
----
-
-## ⚖️ License Compliance for Steam
-
-Steam requires games to comply with open-source licensing. Use the built-in scripts powered by `license-checker`:
-
-```bash
-# View license summary in console
-npm run check-licenses
-
-# Output license report to a CSV file
-npm run export-licenses
-```
 
 ---
 
