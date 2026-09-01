@@ -6,7 +6,6 @@ fn main() {
     tauri_build::build();
 
     let out_dir = env::var("OUT_DIR").unwrap();
-    let _profile = env::var("PROFILE").unwrap();
 
     let target_dir = PathBuf::from(out_dir)
         .ancestors()
