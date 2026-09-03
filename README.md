@@ -4,8 +4,6 @@ A modern, production-ready starter template for building desktop games for **Ste
 
 This template comes pre-configured with essential Steamworks features including **Achievements**, **Leaderboards**, and **Cloud Saves**, paired with high-performance desktop window management provided by Tauri.
 
----
-
 ## 🚀 Features
 
 - **Tauri v2 Desktop Engine**: Lightweight, secure, and fast native desktop app wrapper powered by Rust.
@@ -19,8 +17,6 @@ This template comes pre-configured with essential Steamworks features including 
   - `@tauri-apps/plugin-store` (Persistent key-value storage)
 - **UI Agnostic**: Minimal core UI, allowing seamless setup for Tailwind CSS, Bootstrap, or custom styles.
 
----
-
 ## 🛠️ Prerequisites
 
 Before getting started, make sure your development environment has the following installed:
@@ -32,8 +28,6 @@ Before getting started, make sure your development environment has the following
    - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
    - **Linux**: Build essentials and WebKitGTK packages (`build-essential`, `libssl-dev`, `libgtk-3-dev`, `libwebkit2gtk-4.1-dev`)
 4. **Steam Client**: Steam must be running on your machine for Steamworks API integration during development.
-
----
 
 ## 📦 Installation & Setup
 
@@ -55,8 +49,6 @@ Before getting started, make sure your development environment has the following
    - By default, it uses `480` (Steam's official _Spacewar_ test App ID).
    - Replace `480` with your actual game's Steam App ID provided in your Steamworks Dashboard.
 
----
-
 ## 💻 Development Workflow
 
 To run the application in development mode with live reload:
@@ -74,8 +66,6 @@ This launches both the Vite local development server and the Tauri application w
 - `npm run tauri:dev`: Starts Tauri in development mode with HMR.
 - `npm run tauri:build`: Bundles the full game binary for release.
 - `npm run licenses`: Generate a file with a list of all third-party package licenses.
-
----
 
 ## 🎮 Steamworks Integration
 
@@ -108,8 +98,6 @@ async function unlockAchievement(achievementId: string) {
   }
 }
 ```
-
----
 
 ## 🎨 Styling & UI Framework Integration
 
@@ -161,7 +149,66 @@ To install Bootstrap:
    import "bootstrap/dist/css/bootstrap.min.css";
    ```
 
----
+## ⚙ Uploading/Updating the Game on Steam
+
+Verify that the game works correctly locally.
+
+Upgrade version in `package.json`, `Cargo.toml` and `tauri.conf.json` files.
+
+Update `app_build_ID.vdf` file accordingly to the new version.
+
+Run:
+
+```bash
+npm run build
+npm run tauri:build
+```
+
+Copy the new build files into:
+
+```bash
+C:\CUSTOM_FOLDER
+```
+
+This path must match the one configured in the `depot_build_ID.vdf` file.
+
+Start steamcmd.
+
+Run:
+
+```bash
+login ACCOUNT
+run_app_build app_build_APP_ID.vdf
+quit
+```
+
+At the end, SteamCMD will display the new BuildID.
+
+Verify the build on Steamworks
+
+Open Steamworks → SteamPipe → Builds and verify that the new build is available.
+
+Test the new build
+
+Before publishing it to the Default branch, assign the new build to a private test branch.
+
+Install the game through Steam using that branch and verify that everything works correctly.
+
+Publish the update
+
+Once the new version has been tested successfully:
+
+Steamworks → SteamPipe → Builds → Set Live → Default
+
+The new build will then become the public version of the game.
+
+Notes:
+
+- Do not create a new App.
+- Do not create a new Depot.
+- Do not change the AppID.
+- Every update consists of creating and uploading a new SteamPipe build.
+- SteamPipe automatically handles the differences between the new build and the previous one.
 
 ## 📄 License
 
