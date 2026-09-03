@@ -21,6 +21,7 @@ impl Default for SteamState {
 
 #[derive(Serialize, Clone)]
 pub struct LeaderboardEntryDto {
+    pub rank: i32,
     pub global_rank: i32,
     pub score: i32,
     pub steam_name: String,
@@ -106,11 +107,15 @@ fn map_entries_to_dtos(
     entries: Vec<steamworks::LeaderboardEntry>,
 ) -> Vec<LeaderboardEntryDto> {
     let current_user_id = client.user().steam_id();
+
     entries
         .into_iter()
-        .map(|entry| {
+        .enumerate()
+        .map(|(index, entry)| {
             let steam_name = get_safe_steam_name(client, entry.user);
+
             LeaderboardEntryDto {
+                rank: (index + 1) as i32,
                 global_rank: entry.global_rank,
                 score: entry.score,
                 steam_name,
@@ -126,47 +131,114 @@ fn fetch_leaderboard_logic(
     request_type: steamworks::LeaderboardDataRequest,
 ) -> Result<Vec<LeaderboardEntryDto>, String> {
     let leaderboard = find_leaderboard(client, leaderboard_name)?;
+    let current_user_id = client.user().steam_id();
 
-    if let steamworks::LeaderboardDataRequest::Friends = request_type {
-        let raw_entries = download_entries(client, &leaderboard, request_type, 1, 10)?;
-        return Ok(map_entries_to_dtos(client, raw_entries));
-    }
+    match request_type {
+        steamworks::LeaderboardDataRequest::Friends => {
+            // Steam returns all friends for Friends requests.
+            let raw_entries = download_entries(
+                client,
+                &leaderboard,
+                steamworks::LeaderboardDataRequest::Friends,
+                0,
+                0,
+            )?;
 
-    let raw_entries = download_entries(
-        client,
-        &leaderboard,
-        steamworks::LeaderboardDataRequest::Global,
-        1,
-        10,
-    )?;
-    let mut result_list = map_entries_to_dtos(client, raw_entries);
+            // Find the current user's position among friends.
+            let user_index = raw_entries
+                .iter()
+                .position(|entry| entry.user == current_user_id);
 
-    let user_in_top_10 = result_list.iter().any(|d| d.is_current_user);
-    if !user_in_top_10 {
-        if let Ok(user_raw_entries) = download_entries(
-            client,
-            &leaderboard,
-            steamworks::LeaderboardDataRequest::GlobalAroundUser,
-            0,
-            0,
-        ) {
-            let current_user_id = client.user().steam_id();
-            if let Some(user_entry) = user_raw_entries
-                .into_iter()
-                .find(|e| e.user == current_user_id)
-            {
-                let steam_name = get_safe_steam_name(client, user_entry.user);
-                result_list.push(LeaderboardEntryDto {
-                    global_rank: user_entry.global_rank,
-                    score: user_entry.score,
-                    steam_name,
-                    is_current_user: true,
-                });
+            // Keep only the first 10 friends for display.
+            let mut result_list = raw_entries
+                .iter()
+                .take(10)
+                .enumerate()
+                .map(|(index, entry)| {
+                    let steam_name = get_safe_steam_name(client, entry.user);
+
+                    LeaderboardEntryDto {
+                        rank: (index + 1) as i32,
+                        global_rank: entry.global_rank,
+                        score: entry.score,
+                        steam_name,
+                        is_current_user: entry.user == current_user_id,
+                    }
+                })
+                .collect::<Vec<_>>();
+
+            // If the current user is not in the first 10,
+            // add them with their real rank among friends.
+            if let Some(index) = user_index {
+                if index >= 10 {
+                    let user_entry = &raw_entries[index];
+
+                    let steam_name = get_safe_steam_name(client, user_entry.user);
+
+                    result_list.push(LeaderboardEntryDto {
+                        rank: (index + 1) as i32,
+                        global_rank: user_entry.global_rank,
+                        score: user_entry.score,
+                        steam_name,
+                        is_current_user: true,
+                    });
+                }
             }
+
+            Ok(result_list)
+        }
+
+        steamworks::LeaderboardDataRequest::Global => {
+            // Global requests: only download the first 10.
+            let raw_entries = download_entries(
+                client,
+                &leaderboard,
+                steamworks::LeaderboardDataRequest::Global,
+                1,
+                10,
+            )?;
+
+            let user_in_top_10 = raw_entries
+                .iter()
+                .any(|entry| entry.user == current_user_id);
+
+            let mut result_list = map_entries_to_dtos(client, raw_entries);
+
+            // If the current user is not in the top 10,
+            // retrieve their position in the global leaderboard.
+            if !user_in_top_10 {
+                if let Ok(user_raw_entries) = download_entries(
+                    client,
+                    &leaderboard,
+                    steamworks::LeaderboardDataRequest::GlobalAroundUser,
+                    0,
+                    0,
+                ) {
+                    if let Some(user_entry) = user_raw_entries
+                        .into_iter()
+                        .find(|entry| entry.user == current_user_id)
+                    {
+                        let steam_name =
+                            get_safe_steam_name(client, user_entry.user);
+
+                        result_list.push(LeaderboardEntryDto {
+                            rank: user_entry.global_rank,
+                            global_rank: user_entry.global_rank,
+                            score: user_entry.score,
+                            steam_name,
+                            is_current_user: true,
+                        });
+                    }
+                }
+            }
+
+            Ok(result_list)
+        }
+
+        _ => {
+            Err("Unsupported leaderboard request type".to_string())
         }
     }
-
-    Ok(result_list)
 }
 
 // ==========================================
