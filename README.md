@@ -80,7 +80,7 @@ The Rust side leverages the `steamworks` crate to bind native Steam APIs:
 tauri = { version = "2.2.0" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-steamworks = "0.11"
+steamworks = "0.13.1"
 ```
 
 ### Unlocking Achievements Example
