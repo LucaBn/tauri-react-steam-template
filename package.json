@@ -13,6 +13,30 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"
   },
+  "build": {
+    "appId": "com.app_name.desktop",
+    "productName": "App Name",
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "asar": true,
+    "nodeGypRebuild": false
+  },
   "dependencies": {
     "@tauri-apps/plugin-fs": "^2.5.2",
     "@tauri-apps/plugin-process": "^2.3.1",
@@ -22,7 +46,7 @@
     "tauri-plugin-steamworks-api": "^0.1.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.2.0",
+    "@tauri-apps/cli": "^2.10.1",
     "@types/node": "^22.13.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
