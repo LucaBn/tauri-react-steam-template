@@ -34,7 +34,7 @@ Before getting started, make sure your development environment has the following
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/your-username/tauri-react-steam-template.git
+   git clone https://github.com/lucabn/tauri-react-steam-template.git
    cd tauri-react-steam-template
    ```
 
