@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use steamworks::Client;
 use tauri::{command, Emitter, State};
 
-const STEAM_APP_ID: u32 = 1_234_567; // TODO: change with your Steam App ID
+const STEAM_APP_ID: u32 = 480; // TODO: change with your Steam App ID
 
 struct SteamState {
     client: Mutex<Option<Client>>,

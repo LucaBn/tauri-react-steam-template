@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 
-const APP_ID = 1_234_567;
+const APP_ID = 480;
 let isInitialized = false;
 
 export async function initSteam(): Promise<boolean> {
